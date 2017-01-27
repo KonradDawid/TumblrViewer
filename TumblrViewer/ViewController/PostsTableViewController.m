@@ -17,8 +17,7 @@
 #import "TumblrInfo.h"
 #import "ErrorView.h"
 
-@interface PostsTableViewController () <HtmlContentHeightDelegate>
-@property (nonatomic, strong) NSMutableDictionary *htmlContentHeightCache;
+@interface PostsTableViewController ()
 @property (nonatomic, strong) NSDateFormatter *dateFormatter;
 @property (nonatomic, strong) NSMutableArray<Post*>* posts;
 @end
@@ -32,7 +31,6 @@ static NSString* const unavailablePostCellIdentifier = @"unavailablePostCellIden
 - (instancetype)initWithNibName:(NSString *)nibName bundle:(NSBundle *)nibBundle {
     if (self = [super initWithNibName:nibName bundle:nibBundle]) {
         
-        _htmlContentHeightCache = [NSMutableDictionary dictionary];
         _posts = [NSMutableArray array];
     }
     return self;
@@ -121,66 +119,23 @@ static NSString* const unavailablePostCellIdentifier = @"unavailablePostCellIden
 }
 
 - (void)configureRegularCell:(RegularPostTableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+    
     RegularPost *post = (RegularPost *)self.posts[indexPath.row];
-    cell.delegate = self;
-    
-    NSNumber *heightG = self.htmlContentHeightCache[post.identifier];
-    if (heightG != nil) {
-        cell.webViewHeightConstraint.constant = [heightG floatValue];
-        cell.webViewHeightConstraint.priority = UILayoutPriorityDefaultHigh;
-    }
-    
-    cell.htmlContentId = post.identifier;
     cell.titleLabel.text = post.title;
     cell.tagsLabel.text = post.tagsString;
-    [cell.bodyWebView loadHTMLString:post.body baseURL:nil];
+    cell.bodyLabel.text = post.body;
     cell.dateLabel.text = [self.dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:post.postedAt]];
 }
 
 - (void)configurePhotoCell:(PhotoPostTableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
+    
     PhotoPost *post = (PhotoPost *)self.posts[indexPath.row];
-    cell.delegate = self;
-    
-    NSNumber *heightG = self.htmlContentHeightCache[post.identifier];
-    if (heightG != nil) {
-        cell.webViewHeightConstraint.constant = [heightG floatValue];
-        cell.webViewHeightConstraint.priority = UILayoutPriorityDefaultHigh;
-    }
-    
-    cell.htmlContentId = post.identifier;
+    cell.captionLabel.text = post.caption;
     cell.tagsLabel.text = post.tagsString;
-    [cell.captionWebView loadHTMLString:(post.caption ?: @"") baseURL:nil];
     cell.dateLabel.text = [self.dateFormatter stringFromDate:[NSDate dateWithTimeIntervalSince1970:post.postedAt]];
     NSString *photoPath = post.photos.firstObject;
     if (photoPath != nil) {
         [cell.photoView sd_setImageWithURL:[NSURL URLWithString:photoPath]];
-    }
-}
-
-#pragma mark - UITableView delegate
-
-- (void)tableView:(UITableView *)tableView didEndDisplayingCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-    
-    if ([cell isKindOfClass:[PhotoPostTableViewCell class]]) {
-        PhotoPostTableViewCell *photoCell = (PhotoPostTableViewCell*)cell;
-        photoCell.webViewHeightConstraint.constant = 20;
-        photoCell.webViewHeightConstraint.priority = UILayoutPriorityDefaultLow;
-    } else if ([cell isKindOfClass:[RegularPostTableViewCell class]]) {
-        RegularPostTableViewCell *regularCell = (RegularPostTableViewCell*)cell;
-        regularCell.webViewHeightConstraint.constant = 20;
-        regularCell.webViewHeightConstraint.priority = UILayoutPriorityDefaultLow;
-    }
-}
-
-
-#pragma mark - HtmlContentHeight delegate
-
-- (void)didCalculateHeight:(CGFloat)height forHtmlContentId:(NSString *)htmlContentId {
-    
-    NSNumber *heightG = self.htmlContentHeightCache[htmlContentId];
-    if (heightG == nil) {
-        self.htmlContentHeightCache[htmlContentId] = @(height);
-        [self.tableView reloadData];
     }
 }
 

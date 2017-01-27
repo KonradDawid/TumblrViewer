@@ -42,7 +42,7 @@
     
     NSString *path = [NSString stringWithFormat:@"http://%@.tumblr.com/api/read",[username stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLHostAllowedCharacterSet]]];
     
-    [self.sessionManager GET:path parameters:@{@"start":@(offset), @"num":@(20)} progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    [self.sessionManager GET:path parameters:@{@"start":@(offset), @"num":@(20), @"filter":@"text"} progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
         if (responseObject == nil) {
             if (failureBlock) {

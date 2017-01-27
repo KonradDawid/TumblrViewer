@@ -11,10 +11,7 @@
 
 @interface PhotoPostTableViewCell : UITableViewCell
 @property (nonatomic, strong) UIImageView *photoView;
-@property (nonatomic, strong) UIWebView *captionWebView;
+@property (nonatomic, strong) UILabel *captionLabel;
 @property (nonatomic, strong) UILabel *tagsLabel;
-@property (nonatomic, strong) UILabel *dateLabel;
-@property (nonatomic, strong) NSString *htmlContentId;
-@property (nonatomic, weak) id<HtmlContentHeightDelegate> delegate;
-@property (nonatomic, strong) NSLayoutConstraint *webViewHeightConstraint;
+@property (nonatomic, strong) UILabel *dateLabel;;
 @end
